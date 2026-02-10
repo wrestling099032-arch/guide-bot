@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Теберда & Домбай — Горные маршруты</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+            * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --blue-accent: #3b82f6;
+            --blue-glow: #60a5fa;
+            --orange-accent: #f97316;
+            --orange-glow: #fb923c;
+            --white-accent: #f0f0f0;
+            --glass-bg: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-hover: rgba(255, 255, 255, 0.1);
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0e1a;
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:
+                radial-gradient(ellipse 800px 600px at 20% 20%, rgba(59,130,246,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 600px 500px at 80% 80%, rgba(249,115,22,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 400px 400px at 50% 50%, rgba(59,130,246,0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: fixed;
+            width: 2px; height: 2px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 0.8; }
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 0 16px 32px;
+            position: relative;
+            z-index: 1;
+        }
+                /* === HEADER === */
+        .header {
+            text-align: center;
+            padding: 40px 0 20px;
+        }
+
+        .header-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--blue-accent), var(--orange-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 20px rgba(59,130,246,0.3));
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* === CLOSE BUTTON (Telegram) === */
+        .close-btn {
+            position: fixed;
+            top: 16px; right: 16px;
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            color: var(--text-muted);
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(239,68,68,0.15);
+            color: #f87171;
+            border-color: rgba(239,68,68,0.3);
+        }
+
+        /* === WEATHER WIDGET === */
+        .weather-widget {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px 22px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 8px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.25,0.8,0.25,1);
+        }
+
+        .weather-widget::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+        }
+
+        .weather-widget::after {
+            content: '';
+            position: absolute;
+            top: -50%; right: -30%;
+            width: 180px; height: 180px;
+            border-radius: 50%;
+            opacity: 0.07;
+            transition: background 0.6s ease;
+            pointer-events: none;
+        }
+
+        .weather-widget.teberda-weather::after { background: var(--blue-accent); }
+        .weather-widget.dombay-weather::after { background: var(--orange-accent); }
+
+        .weather-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .weather-location {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .weather-location-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            animation: pulse-dot 2s infinite;
+        }
+
+        .teberda-weather .weather-location-dot {
+            background: var(--blue-glow);
+            box-shadow: 0 0 8px var(--blue-accent);
+        }
+
+        .dombay-weather .weather-location-dot {
+            background: var(--orange-glow);
+            box-shadow: 0 0 8px var(--orange-accent);
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.6; }
+        }
+
+        .weather-location-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+        }
+
+        .weather-badge {
+            font-size: 10px;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .teberda-weather .weather-badge {
+            background: rgba(59,130,246,0.12);
+            color: var(--blue-glow);
+            border: 1px solid rgba(59,130,246,0.2);
+        }
+
+        .dombay-weather .weather-badge {
+            background: rgba(249,115,22,0.12);
+            color: var(--orange-glow);
+            border: 1px solid rgba(249,115,22,0.2);
+        }
+
+        .weather-main {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .weather-icon-box {
+            width: 72px; height: 72px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+
+        .teberda-weather .weather-icon-box {
+            background: linear-gradient(135deg, rgba(59,130,246,0.18), rgba(59,130,246,0.05));
+            border: 1px solid rgba(59,130,246,0.2);
+            color: var(--blue-glow);
+        }
+
+        .dombay-weather .weather-icon-box {
+            background: linear-gradient(135deg, rgba(249,115,22,0.18), rgba(249,115,22,0.05));
+            border: 1px solid rgba(249,115,22,0.2);
+            color: var(--orange-glow);
+        }
+
+        .weather-icon-box .wi-animated {
+            animation: weather-float 3s ease-in-out infinite;
+        }
+
+        @keyframes weather-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .weather-temp-block { flex: 1; }
+
+        .weather-temp {
+            font-size: 38px;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -2px;
+            margin-bottom: 2px;
+        }
+
+        .weather-temp .deg {
+            font-size: 20px;
+            font-weight: 400;
+            color: var(--text-muted);
+            vertical-align: super;
+            margin-left: 2px;
+        }
+
+        .weather-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .weather-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .weather-detail-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 10px 8px;
+            text-align: center;
+            transition: background 0.3s;
+        }
+
+        .weather-detail-item:hover { background: rgba(255,255,255,0.06); }
+
+        .weather-detail-item i {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .teberda-weather .weather-detail-item i { color: rgba(96,165,250,0.6); }
+        .dombay-weather .weather-detail-item i { color: rgba(251,146,60,0.6); }
+
+        .weather-detail-value {
+            font-size: 14px;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 1px;
+        }
+
+        .weather-detail-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .weather-status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .weather-status-bar .live-dot {
+            width: 5px; height: 5px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse-dot 2s infinite;
+        }
+
+        .weather-status-bar .offline-dot {
+            width: 5px; height: 5px;
+            background: #eab308;
+            border-radius: 50%;
+        }
+
+        /* === TABS === */
+        .tabs-wrapper {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 12px 0;
+            background: rgba(10,14,26,0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 14px 16px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25,0.8,0.25,1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-btn i { font-size: 15px; transition: transform 0.3s ease; }
+        .tab-btn:hover { color: var(--text-secondary); }
+
+        .tab-btn.active-teberda {
+            background: linear-gradient(135deg, rgba(59,130,246,0.25), rgba(59,130,246,0.1));
+            color: var(--blue-glow);
+            box-shadow: 0 0 20px rgba(59,130,246,0.15), inset 0 1px 0 rgba(255,255,255,0.1);
+            border: 1px solid rgba(59,130,246,0.3);
+        }
+
+        .tab-btn.active-dombay {
+            background: linear-gradient(135deg, rgba(249,115,22,0.25), rgba(249,115,22,0.1));
+            color: var(--orange-glow);
+            box-shadow: 0 0 20px rgba(249,115,22,0.15), inset 0 1px 0 rgba(255,255,255,0.1);
+            border: 1px solid rgba(249,115,22,0.3);
+        }
+
+        .tab-btn.active-teberda i,
+        .tab-btn.active-dombay i { transform: scale(1.15); }
+
+        /* === CARD IMAGE === */
+        .card-image-wrapper {
+            width: 100%;
+            height: 180px;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .card-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s cubic-bezier(0.25,0.8,0.25,1);
+        }
+
+        .route-card:hover .card-image-wrapper img {
+            transform: scale(1.05);
+        }
+
+        .card-image-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 60px;
+            background: linear-gradient(to top, rgba(10,14,26,0.6), transparent);
+            pointer-events: none;
+        }
+
+        .card-image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+            color: var(--text-muted);
+            font-size: 32px;
+        }
+                /* === ROUTE COUNTER === */
+        .route-counter {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 4px 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .route-counter .count {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* === CARDS === */
+        .cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            min-height: 400px;
+        }
+
+        .route-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 24px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s cubic-bezier(0.25,0.8,0.25,1);
+            position: relative;
+            overflow: hidden;
+            animation: cardAppear 0.5s cubic-bezier(0.25,0.8,0.25,1) forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .route-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+        }
+
+        .route-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255,255,255,0.18);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+        }
+
+        .route-card.teberda-card:hover {
+            border-color: rgba(59,130,246,0.3);
+            box-shadow: 0 12px 40px rgba(59,130,246,0.1);
+        }
+
+        .route-card.dombay-card:hover {
+            border-color: rgba(249,115,22,0.3);
+            box-shadow: 0 12px 40px rgba(249,115,22,0.1);
+        }
+
+        @keyframes cardAppear {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes cardDisappear {
+            from { opacity: 1; transform: translateY(0) scale(1); }
+            to { opacity: 0; transform: translateY(-20px) scale(0.95); }
+        }
+
+        .card-leaving {
+            animation: cardDisappear 0.3s cubic-bezier(0.25,0.8,0.25,1) forwards;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .card-icon-wrapper {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .teberda-card .card-icon-wrapper {
+            background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(59,130,246,0.05));
+            color: var(--blue-glow);
+            border: 1px solid rgba(59,130,246,0.2);
+        }
+
+        .dombay-card .card-icon-wrapper {
+            background: linear-gradient(135deg, rgba(249,115,22,0.2), rgba(249,115,22,0.05));
+            color: var(--orange-glow);
+            border: 1px solid rgba(249,115,22,0.2);
+        }
+
+        .card-title-block { flex: 1; }
+
+        .card-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 2px;
+            line-height: 1.3;
+        }
+
+        .card-location {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        /* === TAGS === */
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid;
+        }
+
+        .tag-difficulty-easy {
+            background: rgba(34,197,94,0.1);
+            color: #4ade80;
+            border-color: rgba(34,197,94,0.2);
+        }
+
+        .tag-difficulty-medium {
+            background: rgba(234,179,8,0.1);
+            color: #facc15;
+            border-color: rgba(234,179,8,0.2);
+        }
+
+        .tag-difficulty-hard {
+            background: rgba(239,68,68,0.1);
+            color: #f87171;
+            border-color: rgba(239,68,68,0.2);
+        }
+
+        .tag-time {
+            background: rgba(148,163,184,0.08);
+            color: var(--text-secondary);
+            border-color: rgba(148,163,184,0.15);
+        }
+
+        .tag-distance {
+            background: rgba(139,92,246,0.1);
+            color: #a78bfa;
+            border-color: rgba(139,92,246,0.2);
+        }
+
+        /* === MAP BUTTON === */
+        .map-btn {
+            width: 100%;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.25,0.8,0.25,1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 0; height: 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transform: translate(-50%,-50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .map-btn:active::after { width: 400px; height: 400px; }
+
+        .teberda-card .map-btn {
+            background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(59,130,246,0.08));
+            color: var(--blue-glow);
+            border: 1px solid rgba(59,130,246,0.25);
+        }
+
+        .teberda-card .map-btn:hover {
+            background: linear-gradient(135deg, rgba(59,130,246,0.3), rgba(59,130,246,0.15));
+            box-shadow: 0 4px 20px rgba(59,130,246,0.2);
+            transform: translateY(-1px);
+        }
+
+        .dombay-card .map-btn {
+            background: linear-gradient(135deg, rgba(249,115,22,0.2), rgba(249,115,22,0.08));
+            color: var(--orange-glow);
+            border: 1px solid rgba(249,115,22,0.25);
+        }
+
+        .dombay-card .map-btn:hover {
+            background: linear-gradient(135deg, rgba(249,115,22,0.3), rgba(249,115,22,0.15));
+            box-shadow: 0 4px 20px rgba(249,115,22,0.2);
+            transform: translateY(-1px);
+        }
+
+        .map-btn i { transition: transform 0.3s ease; }
+        .map-btn:hover i { transform: translateX(3px); }
+
+        /* === FOOTER === */
+        .footer {
+            text-align: center;
+            padding: 32px 0 16px;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .footer .divider {
+            width: 40px; height: 2px;
+            background: linear-gradient(90deg, var(--blue-accent), var(--orange-accent));
+            margin: 0 auto 12px;
+            border-radius: 1px;
+        }
+
+        /* === TOAST === */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(30,35,55,0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            padding: 14px 24px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            z-index: 1000;
+            transition: transform 0.4s cubic-bezier(0.25,0.8,0.25,1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+        }
+
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast i { font-size: 16px; }
+
+        /* === SCROLLBAR === */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 480px) {
+            .container { padding: 0 12px 24px; }
+            .route-card { padding: 18px; }
+            .weather-widget { padding: 16px; }
+            .weather-temp { font-size: 32px; }
+            .weather-icon-box { width: 60px; height: 60px; font-size: 26px; }
+            .card-image-wrapper { height: 160px; border-radius: 14px; }
+        }
+
+        @media (min-width: 768px) {
+            .container { max-width: 520px; }
+            .card-image-wrapper { height: 200px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Частицы -->
+    <div class="particle" style="top:8%;left:15%;animation-delay:0s"></div>
+    <div class="particle" style="top:22%;left:78%;animation-delay:1.2s"></div>
+    <div class="particle" style="top:45%;left:42%;animation-delay:0.5s"></div>
+    <div class="particle" style="top:67%;left:88%;animation-delay:2s"></div>
+    <div class="particle" style="top:35%;left:5%;animation-delay:1.7s"></div>
+    <div class="particle" style="top:82%;left:60%;animation-delay:0.8s"></div>
+    <div class="particle" style="top:12%;left:50%;animation-delay:2.5s"></div>
+    <div class="particle" style="top:55%;left:25%;animation-delay:1s"></div>
+    <div class="particle" style="top:90%;left:35%;animation-delay:0.3s"></div>
+    <div class="particle" style="top:75%;left:12%;animation-delay:1.5s"></div>
+
+    <!-- Кнопка закрыть (Telegram) -->
+    <button class="close-btn" id="close-btn" onclick="closeApp()" title="Закрыть">
+        <i class="fas fa-xmark"></i>
+    </button>
+
+    <div class="container">
+        <!-- Хедер -->
+        <header class="header">
+            <div class="header-icon"><i class="fas fa-mountain-sun"></i></div>
+            <h1>Теберда & Домбай</h1>
+            <p>горные маршруты</p>
+        </header>
+
+        <!-- ★ ВИДЖЕТ ПОГОДЫ ★ -->
+        <div class="weather-widget teberda-weather" id="weather-widget">
+            <div class="weather-top">
+                <div class="weather-location">
+                    <div class="weather-location-dot"></div>
+                    <span class="weather-location-name" id="weather-city">Теберда</span>
+                </div>
+                <span class="weather-badge" id="weather-badge">Сейчас</span>
+            </div>
+            <div class="weather-main">
+                <div class="weather-icon-box">
+                    <i class="fas fa-cloud-sun wi-animated" id="weather-icon"></i>
+                </div>
+                <div class="weather-temp-block">
+                    <div class="weather-temp" id="weather-temp">
+                        --<span class="deg">°C</span>
+                    </div>
+                    <div class="weather-desc" id="weather-desc">Загрузка...</div>
+                </div>
+            </div>
+            <div class="weather-details">
+                <div class="weather-detail-item">
+                    <i class="fas fa-wind"></i>
+                    <span class="weather-detail-value" id="weather-wind">--</span>
+                    <span class="weather-detail-label">Ветер</span>
+                </div>
+                <div class="weather-detail-item">
+                    <i class="fas fa-droplet"></i>
+                    <span class="weather-detail-value" id="weather-humidity">--</span>
+                    <span class="weather-detail-label">Влажность</span>
+                </div>
+                <div class="weather-detail-item">
+                    <i class="fas fa-temperature-half"></i>
+                    <span class="weather-detail-value" id="weather-feels">--</span>
+                    <span class="weather-detail-label">Ощущается</span>
+                </div>
+            </div>
+            <div class="weather-status-bar" id="weather-status">
+                <div class="offline-dot"></div>
+                <span>Загрузка данных...</span>
+            </div>
+        </div>
+
+        <!-- Табы -->
+        <div class="tabs-wrapper">
+            <div class="tabs">
+                <button class="tab-btn active-teberda" id="tab-teberda" onclick="switchTab('teberda')">
+                    <i class="fas fa-water"></i> Теберда
+                </button>
+                <button class="tab-btn" id="tab-dombay" onclick="switchTab('dombay')">
+                    <i class="fas fa-snowflake"></i> Домбай
+                </button>
+            </div>
+        </div>
+
+        <!-- Счётчик -->
+        <div class="route-counter">
+            <span id="counter-text"><span class="count">3</span> маршрута</span>
+            <span id="city-label" style="color: var(--blue-glow);">
+                <i class="fas fa-location-dot"></i> Теберда
+            </span>
+        </div>
+
+        <!-- Карточки -->
+        <div class="cards-container" id="cards-container"></div>
+
+        <!-- Футер -->
+        <footer class="footer">
+            <div class="divider"></div>
+            <p>Тебердинский заповедник · Карачаево-Черкесия</p>
+        </footer>
+    </div>
+
+    <!-- Тост -->
+    <div class="toast" id="toast">
+        <i class="fas fa-map-location-dot"></i>
+        <span id="toast-text">Маршрут открыт</span>
+    </div>
+        <script>
+        // ===== TELEGRAM WEBAPP =====
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+
+        // Применяем тему Telegram если доступна
+        if (tg.themeParams) {
+            document.body.style.setProperty('--tg-theme-bg', tg.themeParams.bg_color || '#0a0e1a');
+        }
+
+        function closeApp() {
+            try {
+                tg.close();
+            } catch (e) {
+                // Если не в Telegram — просто закрываем вкладку
+                window.close();
+            }
+        }
+
+        // ===== ДАННЫЕ МАРШРУТОВ =====
+        const routes = {
+            teberda: [
+                {
+                    title: 'Бадукские озёра',
+                    description: 'Три горных озера с кристально чистой бирюзовой водой на высоте 2000 м. Тропа проходит через реликтовый лес и открывает виды на Главный Кавказский хребет.',
+                    icon: 'fa-water',
+                    difficulty: 'Средняя',
+                    difficultyClass: 'medium',
+                    time: '5–6 часов',
+                    distance: '9 км',
+                    image: 'https://img.tourister.ru/files/2/7/6/9/5/0/5/3/original.jpg',
+                    mapUrl: 'https://yandex.ru/maps?whatshere%5Bpoint%5D=41.69640614892623%2C43.37639426833835'
+                },
+                {
+                    title: 'Водопад Шумка',
+                    description: 'Живописный 12-метровый водопад в ущелье реки Шумка. Самый доступный маршрут региона — идеален для семейной прогулки среди хвойного леса.',
+                    icon: 'fa-droplet',
+                    difficulty: 'Лёгкая',
+                    difficultyClass: 'easy',
+                    time: '1.5–2 часа',
+                    distance: '3 км',
+                    image: '',
+                    mapUrl: 'https://yandex.ru/maps/?ll=41.72,43.44&z=14&l=sat'
+                },
+                {
+                    title: 'Сентинский храм',
+                    description: 'Древний христианский храм X века на скальном уступе над Тебердой. Уникальный памятник аланской архитектуры с панорамой на долину и горы.',
+                    icon: 'fa-place-of-worship',
+                    difficulty: 'Лёгкая',
+                    difficultyClass: 'easy',
+                    time: '2–3 часа',
+                    distance: '4 км',
+                    image: '',
+                    mapUrl: 'https://yandex.ru/maps/?ll=41.79,43.52&z=14&l=sat'
+                }
+            ],
+            dombay: [
+                {
+                    title: 'Алибекский ледник',
+                    description: 'Один из самых доступных ледников Кавказа. Тропа ведёт через альпийские луга к массивной ледяной стене с водопадом Алибекский у подножия.',
+                    icon: 'fa-igloo',
+                    difficulty: 'Сложная',
+                    difficultyClass: 'hard',
+                    time: '6–7 часов',
+                    distance: '14 км',
+                    image: '',
+                    mapUrl: 'https://yandex.ru/maps/?ll=41.55,43.30&z=14&l=sat'
+                },
+                {
+                    title: 'Чучхурский водопад',
+                    description: 'Величественный трёхкаскадный водопад высотой 250 м в окружении ледниковых вершин. Один из красивейших водопадов Западного Кавказа.',
+                    icon: 'fa-tornado',
+                    difficulty: 'Средняя',
+                    difficultyClass: 'medium',
+                    time: '4–5 часов',
+                    distance: '10 км',
+                    image: '',
+                    mapUrl: 'https://yandex.ru/maps/?ll=41.67,43.27&z=14&l=sat'
+                },
+                {
+                    title: 'Гора Мусса-Ачитара',
+                    description: 'Подъём на канатной дороге на высоту 3012 м. С вершины открывается грандиозная панорама Эльбруса и всего Главного Кавказского хребта.',
+                    icon: 'fa-mountain',
+                    difficulty: 'Лёгкая',
+                    difficultyClass: 'easy',
+                    time: '3–4 часа',
+                    distance: '2 км пешком',
+                    image: '',
+                    mapUrl: 'https://yandex.ru/maps/?ll=41.63,43.29&z=14&l=sat'
+                }
+            ]
+        };
+
+        // ===== ПОГОДА — OPEN-METEO (без ключа!) =====
+        const weatherCities = {
+            teberda: { name: 'Теберда', lat: 43.44, lon: 41.74 },
+            dombay:  { name: 'Домбай',  lat: 43.27, lon: 41.62 }
+        };
+
+        let currentCity = 'teberda';
+        let weatherCache = {};
+
+        // WMO Weather Codes → описание + иконка FontAwesome
+        function decodeWMO(code, isDay) {
+            const wmo = {
+                0:  { desc: 'Ясное небо',             icon: isDay ? 'fa-sun' : 'fa-moon' },
+                1:  { desc: 'Преимущественно ясно',    icon: isDay ? 'fa-sun' : 'fa-moon' },
+                2:  { desc: 'Переменная облачность',   icon: isDay ? 'fa-cloud-sun' : 'fa-cloud-moon' },
+                3:  { desc: 'Пасмурно',                icon: 'fa-cloud' },
+                45: { desc: 'Туман',                   icon: 'fa-smog' },
+                48: { desc: 'Изморозь',                icon: 'fa-smog' },
+                51: { desc: 'Лёгкая морось',           icon: 'fa-cloud-rain' },
+                53: { desc: 'Умеренная морось',        icon: 'fa-cloud-rain' },
+                55: { desc: 'Сильная морось',          icon: 'fa-cloud-showers-heavy' },
+                56: { desc: 'Ледяная морось',          icon: 'fa-cloud-rain' },
+                57: { desc: 'Сильная ледяная морось',  icon: 'fa-cloud-showers-heavy' },
+                61: { desc: 'Небольшой дождь',         icon: isDay ? 'fa-cloud-sun-rain' : 'fa-cloud-moon-rain' },
+                63: { desc: 'Умеренный дождь',         icon: 'fa-cloud-rain' },
+                65: { desc: 'Сильный дождь',           icon: 'fa-cloud-showers-heavy' },
+                66: { desc: 'Ледяной дождь',           icon: 'fa-cloud-rain' },
+                67: { desc: 'Сильный ледяной дождь',   icon: 'fa-cloud-showers-heavy' },
+                71: { desc: 'Небольшой снег',          icon: 'fa-snowflake' },
+                73: { desc: 'Умеренный снег',          icon: 'fa-snowflake' },
+                75: { desc: 'Сильный снег',            icon: 'fa-snowflake' },
+                77: { desc: 'Снежные зёрна',           icon: 'fa-snowflake' },
+                80: { desc: 'Ливень',                  icon: 'fa-cloud-showers-heavy' },
+                81: { desc: 'Умеренный ливень',        icon: 'fa-cloud-showers-heavy' },
+                82: { desc: 'Сильный ливень',          icon: 'fa-cloud-showers-heavy' },
+                85: { desc: 'Снежный ливень',          icon: 'fa-snowflake' },
+                86: { desc: 'Сильный снежный ливень',  icon: 'fa-snowflake' },
+                95: { desc: 'Гроза',                   icon: 'fa-cloud-bolt' },
+                96: { desc: 'Гроза с градом',          icon: 'fa-cloud-bolt' },
+                99: { desc: 'Сильная гроза с градом',  icon: 'fa-cloud-bolt' }
+            };
+            return wmo[code] || { desc: 'Облачно', icon: 'fa-cloud' };
+        }
+
+        function renderWeather(city, data, isLive) {
+            const widget = document.getElementById('weather-widget');
+            const themeClass = city === 'teberda' ? 'teberda-weather' : 'dombay-weather';
+            widget.className = `weather-widget ${themeClass}`;
+
+            widget.style.opacity = '0';
+            widget.style.transform = 'translateY(10px)';
+
+            setTimeout(() => {
+                document.getElementById('weather-city').textContent = weatherCities[city].name;
+                document.getElementById('weather-temp').innerHTML =
+                    `${Math.round(data.temp)}<span class="deg">°C</span>`;
+                document.getElementById('weather-desc').textContent = data.desc;
+                document.getElementById('weather-icon').className =
+                    `fas ${data.icon} wi-animated`;
+                document.getElementById('weather-wind').textContent = `${data.wind} м/с`;
+                document.getElementById('weather-humidity').textContent = `${data.humidity}%`;
+                document.getElementById('weather-feels').textContent = `${Math.round(data.feels)}°`;
+
+                const statusBar = document.getElementById('weather-status');
+                if (isLive) {
+                    const now = new Date();
+                    const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+                    statusBar.innerHTML =
+                        `<div class="live-dot"></div><span>Обновлено в ${timeStr} · Open-Meteo</span>`;
+                } else {
+                    statusBar.innerHTML =
+                        `<div class="offline-dot"></div><span>Ошибка загрузки · Попробуйте позже</span>`;
+                }
+
+                widget.style.opacity = '1';
+                widget.style.transform = 'translateY(0)';
+            }, 200);
+        }
+
+        async function fetchWeather(city) {
+            // Проверяем кэш (5 минут)
+            const cached = weatherCache[city];
+            if (cached && (Date.now() - cached.time < 300000)) {
+                renderWeather(city, cached.data, true);
+                return;
+            }
+
+            try {
+                const { lat, lon } = weatherCities[city];
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,is_day&wind_speed_unit=ms&timezone=auto`;
+
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                const json = await res.json();
+                const c = json.current;
+
+                const isDay = c.is_day === 1;
+                const wmo = decodeWMO(c.weather_code, isDay);
+
+                const data = {
+                    temp: c.temperature_2m,
+                    feels: c.apparent_temperature,
+                    humidity: c.relative_humidity_2m,
+                    wind: Math.round(c.wind_speed_10m * 10) / 10,
+                    desc: wmo.desc,
+                    icon: wmo.icon
+                };
+
+                weatherCache[city] = { data, time: Date.now() };
+                renderWeather(city, data, true);
+
+            } catch (err) {
+                console.warn('Open-Meteo ошибка:', err);
+                // Fallback — показываем ошибку красиво
+                const fallback = {
+                    teberda: { temp: 14, feels: 11, humidity: 72, wind: 3.2, desc: 'Нет соединения', icon: 'fa-cloud-sun' },
+                    dombay:  { temp: 8,  feels: 4,  humidity: 85, wind: 5.8, desc: 'Нет соединения', icon: 'fa-cloud' }
+                };
+                renderWeather(city, fallback[city], false);
+            }
+        }
+
+        // ===== КАРТОЧКИ =====
+        function createCard(route, city, index) {
+            const cardClass = city === 'teberda' ? 'teberda-card' : 'dombay-card';
+            const delay = index * 0.1 + 0.05;
+
+            // Блок изображения
+            let imageBlock = '';
+            if (route.image) {
+                imageBlock = `
+                    <div class="card-image-wrapper">
+                        <img src="${route.image}"
+                             alt="${route.title}"
+                             loading="lazy"
+                             onerror="this.parentElement.innerHTML='<div class=\\'card-image-placeholder\\'><i class=\\'fas ${route.icon}\\'></i></div>'" />
+                    </div>`;
+            }
+
+            return `
+                <div class="route-card ${cardClass}" style="animation-delay:${delay}s">
+                    ${imageBlock}
+                    <div class="card-header">
+                        <div class="card-icon-wrapper">
+                            <i class="fas ${route.icon}"></i>
+                        </div>
+                        <div class="card-title-block">
+                            <div class="card-title">${route.title}</div>
+                            <div class="card-location">
+                                <i class="fas fa-location-dot"></i>
+                                ${city === 'teberda' ? 'Теберда' : 'Домбай'}, КЧР
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-description">${route.description}</div>
+                    <div class="card-tags">
+                        <span class="tag tag-difficulty-${route.difficultyClass}">
+                            <i class="fas fa-signal"></i> ${route.difficulty}
+                        </span>
+                        <span class="tag tag-time">
+                            <i class="far fa-clock"></i> ${route.time}
+                        </span>
+                        <span class="tag tag-distance">
+                            <i class="fas fa-route"></i> ${route.distance}
+                        </span>
+                    </div>
+                    <button class="map-btn" onclick="openMap('${route.title}', '${route.mapUrl}')">
+                        <i class="fas fa-map-location-dot"></i>
+                        Маршрут на карте
+                        <i class="fas fa-arrow-right" style="margin-left:auto;font-size:12px;"></i>
+                    </button>
+                </div>`;
+        }
+
+        function renderCards(city) {
+            const container = document.getElementById('cards-container');
+            container.innerHTML = routes[city]
+                .map((r, i) => createCard(r, city, i)).join('');
+        }
+
+        // ===== ПЕРЕКЛЮЧЕНИЕ =====
+        function switchTab(city) {
+            if (currentCity === city) return;
+
+            const container = document.getElementById('cards-container');
+            const cards = container.querySelectorAll('.route-card');
+
+            cards.forEach((card, i) => {
+                card.style.animationDelay = `${i * 0.05}s`;
+                card.classList.add('card-leaving');
+            });
+
+            document.getElementById('tab-teberda').className =
+                'tab-btn' + (city === 'teberda' ? ' active-teberda' : '');
+            document.getElementById('tab-dombay').className =
+                'tab-btn' + (city === 'dombay' ? ' active-dombay' : '');
+
+            currentCity = city;
+            fetchWeather(city);
+
+            setTimeout(() => {
+                renderCards(city);
+
+                const count = routes[city].length;
+                document.getElementById('counter-text').innerHTML =
+                    `<span class="count">${count}</span> маршрута`;
+
+                const label = document.getElementById('city-label');
+                if (city === 'teberda') {
+                    label.style.color = 'var(--blue-glow)';
+                    label.innerHTML = '<i class="fas fa-location-dot"></i> Теберда';
+                } else {
+                    label.style.color = 'var(--orange-glow)';
+                    label.innerHTML = '<i class="fas fa-location-dot"></i> Домбай';
+                }
+            }, 300);
+        }
+
+        function openMap(title, url) {
+            showToast(`Открываю: ${title}`);
+            setTimeout(() => {
+                // В Telegram WebApp используем openLink
+                try {
+                    tg.openLink(url);
+                } catch (e) {
+                    window.open(url, '_blank');
+                }
+            }, 400);
+        }
+
+        function showToast(text) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-text').textContent = text;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // ===== ИНИЦИАЛИЗАЦИЯ =====
+        renderCards('teberda');
+        fetchWeather('teberda');
+
+        // Автообновление каждые 5 минут
+        setInterval(() => fetchWeather(currentCity), 300000);
+
+        // ===== СВАЙПЫ =====
+        let touchStartX = 0;
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        document.addEventListener('touchend', e => {
+            const diff = touchStartX - e.changedTouches[0].screenX;
+            if (Math.abs(diff) > 80) {
+                if (diff > 0 && currentCity === 'teberda') switchTab('dombay');
+                else if (diff < 0 && currentCity === 'dombay') switchTab('teberda');
+            }
+        }, { passive: true });
+    </script>
+</body>
+</html>
