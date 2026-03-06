@@ -450,9 +450,9 @@ const routes={teberda:[
 {id:'t3',title:'Озеро Кара-Кёль',te:'Kara-Kol Lake',desc:'Тёмно-изумрудное озеро, пляж, катамараны.',de:'Dark emerald lake, beach, catamarans.',icon:'fa-water-ladder',diff:'Лёгкая',dfe:'Easy',dc:'easy',time:'2–3 ч',tm:120,dist:'1 км',dn:1,elev:'1350 м',image:P.karakel,lat:43.4433,lon:41.7395},
 {id:'t4',title:'Джамагатские нарзаны',te:'Djamagat Springs',desc:'Минеральные источники, вид на Эльбрус.',de:'Mineral springs, Elbrus views.',icon:'fa-glass-water',diff:'Средняя',dfe:'Medium',dc:'medium',time:'5–6 ч',tm:300,dist:'12 км',dn:12,elev:'1813 м',image:P.jamagat,lat:43.461,lon:41.814},
 {id:'t5',title:'Шоанинский храм',te:'Shoana Temple',desc:'Храм X века на горе Шоана.',de:'10th century temple.',icon:'fa-church',diff:'Лёгкая',dfe:'Easy',dc:'easy',time:'2–3 ч',tm:120,dist:'3 км',dn:3,elev:'1100 м',image:P.shoanin,lat:43.4756,lon:41.892},
-{id:'t6',title:'Лысая гора',te:'Bald Mountain',desc:'Панорама на Тебердинскую долину.',de:'Panoramic Teberda valley view.',icon:'fa-mountain-sun',diff:'Средняя',dfe:'Medium',dc:'medium',time:'3–4 ч',tm:180,dist:'6 км',dn:6,elev:'1600 м',image:P.lysaya,lat:43.443,lon:41.745},
+{id:'t6',title:'Лысая гора-Барадинское ущелье',te:'Bald Mountain',desc:'Панорама на Тебердинскую долину.',de:'Panoramic Teberda valley view.',icon:'fa-mountain-sun',diff:'Средняя',dfe:'Medium',dc:'medium',time:'3–4 ч',tm:180,dist:'6 км',dn:6,elev:'1600 м',image:P.lysaya,lat:43.443,lon:41.745},
 {id:'t7',title:'Ущелье Азгек',te:'Azgek Gorge',desc:'Живописное ущелье с озёрами.',de:'Scenic gorge with lakes.',icon:'fa-mountain',diff:'Средняя',dfe:'Medium',dc:'medium',time:'6–7 ч',tm:360,dist:'14 км',dn:14,elev:'2600 м',image:P.azgek,lat:43.395,lon:41.69},
-{id:'t8',title:'Мухинское ущелье',te:'Mukhin Gorge',desc:'Тихое ущелье с нарзанами.',de:'Quiet gorge with mineral springs.',icon:'fa-tree',diff:'Средняя',dfe:'Medium',dc:'medium',time:'4–5 ч',tm:240,dist:'10 км',dn:10,elev:'1800 м',image:P.mukhin,lat:43.45,lon:41.76},
+{id:'t8',title:'Мухинское ущелье-Барадинское ущелье',te:'Mukhin Gorge',desc:'Тихое ущелье с нарзанами.',de:'Quiet gorge with mineral springs.',icon:'fa-tree',diff:'Средняя',dfe:'Medium',dc:'medium',time:'4–5 ч',tm:240,dist:'10 км',dn:10,elev:'1800 м',image:P.mukhin,lat:43.45,lon:41.76},
 {id:'t9',title:'Тебердинский заповедник',te:'Teberda Reserve',desc:'Вольеры с зубрами, музей природы.',de:'Bison enclosures, nature museum.',icon:'fa-leaf',diff:'Лёгкая',dfe:'Easy',dc:'easy',time:'2–3 ч',tm:120,dist:'2 км',dn:2,elev:'1300 м',image:P.zapov,lat:43.444,lon:41.74},
 {id:'t10',title:'Водопад Мужские слёзы',te:'Male Tears Waterfall',desc:'Живописный водопад у дороги.',de:'Scenic waterfall by road.',icon:'fa-droplet',diff:'Лёгкая',dfe:'Easy',dc:'easy',time:'1 ч',tm:60,dist:'1 км',dn:1,elev:'1400 м',image:P.muzslz,lat:43.42,lon:41.73},
 {id:'t11',title:'Чёртов замок',te:'Devil\'s Castle',desc:'Скальное образование с панорамой.',de:'Rock formation with panorama.',icon:'fa-chess-rook',diff:'Средняя',dfe:'Medium',dc:'medium',time:'3–4 ч',tm:200,dist:'5 км',dn:5,elev:'1800 м',image:P.chertov,lat:43.44,lon:41.75},
@@ -487,7 +487,7 @@ const transportData=[
 function getSvc(){return{
 housing:{title:L('Жильё','Housing'),icon:'fa-house-chimney',ic:'icon-green',type:'cat',subs:[
 {id:'hotels',name:L('Гостиницы','Hotels'),icon:'fa-hotel',ic:'icon-green',items:[
-{name:'Экара',desc:L('Гостиница','Hotel'),addr:'г. Теберда',lat:43.439510,lon:41.743101}
+{name:'Экара',desc:L('Гостиница','Hotel'),addr:'г. Теберда',contact:'89188811912',lat:43.439510,lon:41.743101}
 ]},
 {id:'apart',name:L('Квартиры','Apartments'),icon:'fa-building',ic:'icon-green',items:[
 {name:L('Ваша реклама','Studio'),desc:L('В центре','Central'),contact:'0000',addr:'г. Теберда'}
@@ -502,6 +502,7 @@ housing:{title:L('Жильё','Housing'),icon:'fa-house-chimney',ic:'icon-green'
 cafe:{title:L('Кафе','Cafes'),icon:'fa-utensils',ic:'icon-pink',type:'s',items:[
 {name:L('Форелевое хозяйство "Озёрный"','Trout farm "Ozerniy"'),desc:L('Ловля+мангал, кафе','Fish+BBQ, cafe'),addr:'г. Теберда',lat:43.427754,lon:41.735392,tg:'https://t.me/baza_ozernyi'},
 {name:L('Кафе Томагавк','Cafe Tomahawk'),desc:L('Стейкхаус','Steakhouse'),addr:'г. Теберда, ул. Карачаевская 31',contact:'89259606666',lat:43.467746,lon:41.735504,tg:'https://steakhousetomahawk.tilda.ws/'},
+{name:L('Кафе БЕРЕКЕТ РЕСТО (УЮТ)"','Trout farm "Ozerniy"'),desc:L('Костровая зона, Качели, Беседка, Мангал','Fish+BBQ, cafe'),addr:'г. Теберда, ул. Ленина 21',contact:'+7 928 380 29 16' ,lat:43.433763,lon:41.743450,tg:'https://t.me/Asiyat2026'},
 {name:'GreenHill',desc:L('Кафе в Домбае','Dombay cafe'),addr:L('Домбай','Dombay'),lat:43.290636,lon:41.626882},
 ]},
 shops:{title:L('Магазины','Shops'),icon:'fa-store',ic:'icon-blue',type:'s',items:[
@@ -534,7 +535,8 @@ quad:{title:L('Квадроциклы','ATVs'),icon:'fa-motorcycle',ic:'icon-blu
 ]},
 jeep:{title:L('Джипинг','Jeeping'),icon:'fa-truck-monster',ic:'icon-teal',type:'s',items:[
 {name:L('Туры в Домбай','Tours in Dombai'),desc:L('Джиппинг, экскурсии','Jeeping, tours'),contact:'+79887169156',tg:'https://t.me/tours_in_dombai'},
-{name:'Bert Travel',desc:L('Джипинг, туры','Jeeping, tours'),contact:'89897832525',tg:'https://t.me/BertTravel'}
+{name:'Bert Travel',desc:L('Джипинг, туры','Jeeping, tours'),contact:'89897832525',tg:'https://t.me/BertTravel'},
+{name:L('Руслан Шаманов','Ruslan Shamanov'),desc:L('Гид, туризм','Guide, tourism'),contact:'89283851709',tg:'https://t.me/Shamanovturizm',vk:'https://vk.ru/shamanov_turizm'}
 ]},
 forel:{title:L('Форель','Trout'),icon:'fa-fish',ic:'icon-cyan',type:'s',items:[
 {name:L('Форелевое хозяйство "Озёрный"','Trout farm "Ozerniy"'),desc:L('Ловля+мангал','Fish+BBQ'),addr:'г. Теберда',lat:43.427754,lon:41.735392,tg:'https://t.me/baza_ozernyi'}
