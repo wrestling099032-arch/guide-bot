@@ -747,12 +747,15 @@ async function loadExternalServices(){
 }
 loadExternalServices().then(function(){
   renderAll();
+}).catch(function(){
+  renderAll();
 });
-fetchW('teberda');setInterval(()=>fetchW(curCity),300000);
+fetchW('teberda'); setInterval(()=>fetchW(curCity),300000);
 let tx=0;document.addEventListener('touchstart',e=>{if(document.getElementById('detailPage').classList.contains('open')||document.getElementById('imgViewer').classList.contains('show'))return;tx=e.changedTouches[0].screenX},{passive:1});document.addEventListener('touchend',e=>{if(document.getElementById('detailPage').classList.contains('open')||document.getElementById('imgViewer').classList.contains('show'))return;const d=tx-e.changedTouches[0].screenX;if(Math.abs(d)>80){if(d>0&&curCity==='teberda')switchTab('dombay');else if(d<0&&curCity==='dombay')switchTab('teberda')}},{passive:1});
 document.getElementById('svcModal').addEventListener('click',function(e){if(e.target===this)closeModal()});
 document.addEventListener('click',e=>{if(!e.target.closest('.search-wrapper'))document.getElementById('searchResults').classList.remove('show')});
 </script>
 </body>
 </html>
+
 
