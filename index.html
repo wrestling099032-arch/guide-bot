@@ -611,8 +611,28 @@ emergency:{title:L('Экстренные','Emergency'),icon:'fa-shield-halved',i
 {name:L('Полиция','Police'),desc:'',contact:'102'},
 {name:'112',desc:L('Единый','Universal'),contact:'112'}
 ]}
-}}
+};
 
+// Подмешиваем внешние услуги из таблицы
+if(window._extSvc && window._extSvc.length > 0){
+  window._extSvc.forEach(function(ext){
+    var cat = ext.cat;
+    var item = ext.item;
+    if(!svc[cat]) return;
+
+    if(svc[cat].type === 'cat' && svc[cat].subs && svc[cat].subs.length > 0){
+      var sub = svc[cat].subs[0];
+      var exists = sub.items.some(function(x){ return x.name===item.name && (x.contact||'')===(item.contact||''); });
+      if(!exists) sub.items.push(item);
+    } else if(svc[cat].items){
+      var exists2 = svc[cat].items.some(function(x){ return x.name===item.name && (x.contact||'')===(item.contact||''); });
+      if(!exists2) svc[cat].items.push(item);
+    }
+  });
+}
+
+return svc;
+}
 const phrases=[
 {cat:'Приветствие',ce:'Greetings',items:[{ru:'Здравствуйте!',local:'Кюнюгюз ахшы болсун!',en:'Hello!'},{ru:'Привет!',local:'Салам!',en:'Hi!'},{ru:'Доброе утро!',local:'Ахшы ингир!',en:'Good morning!'},{ru:'Добрый вечер!',local:'Ахшы кеч!',en:'Good evening!'}]},
 {cat:'Благодарность',ce:'Gratitude',items:[{ru:'Спасибо!',local:'Сау бол!',en:'Thank you!'},{ru:'Большое спасибо!',local:'Кёп сау бол!',en:'Thank you very much!'},{ru:'Пожалуйста (в ответ)',local:'Хош келдинг!',en:'You\'re welcome!'}]},
@@ -669,10 +689,70 @@ function clearSearch(){document.getElementById('searchInput').value='';document.
 function goPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav-i').forEach(n=>n.classList.toggle('active',n.dataset.p===id));curPage=id;haptic();if(id==='page-fav')renderFavs();if(id==='page-transport')renderTransport();if(id==='page-map')setTimeout(()=>{initYaMap();if(yaMap){yaMap.container.fitToViewport();addMarkers()}},300);window.scrollTo({top:0,behavior:'smooth'})}
 function showToast(text,icon='fa-check-circle'){const t=document.getElementById('toast');document.getElementById('t-txt').textContent=text;document.getElementById('t-ico').className=`fas ${icon}`;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
 function renderAll(){renderSvc();renderPhrases();renderCards(curCity);renderProgress();renderTransport();updFB();updateUI()}
-renderAll();fetchW('teberda');setInterval(()=>fetchW(curCity),300000);
+async function loadExternalServices(){
+  try{
+    const SHEET_ID = '1YnkQ7L4mVz_7xR82MS03EhUQ6cL90ocV8GeRn1D5OaE';
+    const SHEET_NAME = 'app';
+    const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(SHEET_NAME);
+
+    const r = await fetch(url);
+    const text = await r.text();
+
+    const startIdx = text.indexOf('{');
+    const endIdx = text.lastIndexOf('}');
+    if(startIdx === -1 || endIdx === -1) return;
+    const jsonText = text.substring(startIdx, endIdx + 1);
+
+    let data;
+    try{ data = JSON.parse(jsonText); }catch(e){ return; }
+    if(!data.table || !data.table.rows) return;
+
+    data.table.rows.forEach(function(row){
+      const cells = row.c || [];
+      function gv(i){ if(!cells[i]) return ''; if(cells[i].v===null||cells[i].v===undefined) return ''; return String(cells[i].v).trim(); }
+
+      const category = gv(0);
+      const name = gv(1);
+      const desc = gv(2);
+      const contact = gv(3);
+      const addr = gv(4);
+      const latS = gv(5);
+      const lonS = gv(6);
+      const tg = gv(7);
+      const vk = gv(8);
+      const web = gv(9);
+      const gallery = gv(10);
+
+      if(!category || !name) return;
+
+      const item = {name: name};
+      if(desc) item.desc = desc;
+      if(contact) item.contact = contact;
+      if(addr) item.addr = addr;
+      var lat = parseFloat(latS), lon = parseFloat(lonS);
+      if(!isNaN(lat) && !isNaN(lon) && lat!==0 && lon!==0){ item.lat=lat; item.lon=lon; }
+      if(tg) item.tg = tg;
+      if(vk) item.vk = vk;
+      if(gallery && gallery.toLowerCase()==='true') item.gallery = 'vershina';
+
+      // Сохраняем для подмешивания
+      if(!window._extSvc) window._extSvc = [];
+      window._extSvc.push({cat: category, item: item});
+    });
+
+    console.log('External services loaded for app');
+  }catch(e){
+    console.log('External services error:', e);
+  }
+}
+loadExternalServices().then(function(){
+  renderAll();
+});
+fetchW('teberda');setInterval(()=>fetchW(curCity),300000);
 let tx=0;document.addEventListener('touchstart',e=>{if(document.getElementById('detailPage').classList.contains('open')||document.getElementById('imgViewer').classList.contains('show'))return;tx=e.changedTouches[0].screenX},{passive:1});document.addEventListener('touchend',e=>{if(document.getElementById('detailPage').classList.contains('open')||document.getElementById('imgViewer').classList.contains('show'))return;const d=tx-e.changedTouches[0].screenX;if(Math.abs(d)>80){if(d>0&&curCity==='teberda')switchTab('dombay');else if(d<0&&curCity==='dombay')switchTab('teberda')}},{passive:1});
 document.getElementById('svcModal').addEventListener('click',function(e){if(e.target===this)closeModal()});
 document.addEventListener('click',e=>{if(!e.target.closest('.search-wrapper'))document.getElementById('searchResults').classList.remove('show')});
 </script>
 </body>
 </html>
+
