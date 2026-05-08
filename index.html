@@ -909,6 +909,9 @@ jeep:{title:L('Джипинг','Jeeping'),icon:'fa-truck-monster',ic:'icon-teal'
 forel:{title:L('Форель','Trout'),icon:'fa-fish',ic:'icon-cyan',type:'s',items:[
 {name:L('Форелевое хозяйство "Озёрный"','Trout farm "Ozerniy"'),desc:L('Ловля+мангал','Fish+BBQ'),addr:'г. Теберда',lat:43.427754,lon:41.735392,tg:'https://t.me/baza_ozernyi'}
 ]},
+pvz:{title:L('ПВЗ','Pickup points'),icon:'fa-box',ic:'icon-purple',type:'s',items:[
+{name:'Wildberries',desc:L('Пункт выдачи Wildberries','Wildberries pickup point'),addr:'г. Теберда ул. Ленина 58а',contact:'+79283940672',lat:43.428460,lon:41.742187}
+]},
 transfer:{title:L('Трансфер','Transfer'),icon:'fa-car',ic:'icon-purple',type:'s',items:[
 {name:L('Такси: Трансфер Альберт','Taxi: Transfer Albert'),desc:'Теберда -Домбай - Архыз, и не только',contact:'89283882520'},
 {name:L('Такси: Трансфер Ислам','Taxi: Transfer'),desc:'Теберда -Домбай - Архыз, и не только',contact:'89298594699'},
@@ -1071,7 +1074,7 @@ document.getElementById('svcArr').style.transform=svcOpen?'rotate(0)':'rotate(-9
 
 function renderSvc(){
 const s=getSvc();
-const keys=['housing','cafe','shops','guide','instructor','souvenirs','medpoint','horse','quad','jeep','forel','transfer','banya','pharmacy','lifts','fun','webcams','meat','gas'];
+const keys=['housing','cafe','shops','guide','instructor','souvenirs','medpoint','horse','quad','jeep','forel','transfer','banya','pharmacy','lifts','fun','webcams','meat','gas','pvz'];
 document.getElementById('svcBadge').textContent=keys.length;
 document.getElementById('svc-grid').innerHTML=keys.map(k=>{
 const sv=s[k];
